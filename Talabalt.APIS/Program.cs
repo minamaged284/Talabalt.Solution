@@ -1,6 +1,7 @@
 
 
 using Microsoft.EntityFrameworkCore;
+using Talabalt.APIS.Helpers;
 using Talabat.Core.RepositoryInterfaces;
 using Talabat.Repository.Data;
 
@@ -20,6 +21,8 @@ namespace Talabalt.APIS
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<StoreDbContext>(options=>options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
+            builder.Services.AddAutoMapper(typeof(Profiles));
+            
 
             var app = builder.Build();
 
@@ -53,6 +56,7 @@ namespace Talabalt.APIS
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+            app.UseStaticFiles();
 
 
             app.MapControllers();
