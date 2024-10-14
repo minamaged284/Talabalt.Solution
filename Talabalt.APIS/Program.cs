@@ -1,7 +1,11 @@
 
 
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Talabalt.APIS.Errors;
+using Talabalt.APIS.Extensions;
 using Talabalt.APIS.Helpers;
+using Talabalt.APIS.Middlewares;
 using Talabat.Core.RepositoryInterfaces;
 using Talabat.Repository.Data;
 
@@ -20,9 +24,8 @@ namespace Talabalt.APIS
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<StoreDbContext>(options=>options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-            builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
-            builder.Services.AddAutoMapper(typeof(Profiles));
-            
+            builder.Services.applicationServices();
+
 
             var app = builder.Build();
 
@@ -47,17 +50,19 @@ namespace Talabalt.APIS
             }
 
             // Configure the HTTP request pipeline.
+
+            app.UseMiddleware<ExceptionMiddleware>();
+
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.addSwaggerMiddleware();
             }
+            app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
             app.UseStaticFiles();
-
 
             app.MapControllers();
 
